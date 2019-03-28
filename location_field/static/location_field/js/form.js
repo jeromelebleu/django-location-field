@@ -440,27 +440,19 @@ var SequentialLoader = function() {
     }
 
     function dataLocationFieldObserver(callback) {
-      function _findAndEnableDataLocationFields() {
-        var dataLocationFields = $('input[data-location-field-options]');
+        function _initLocationFields() {
+            $('input[data-location-field-options]')
+                .not('[data-location-field-observed]')
+                .attr('data-location-field-observed', true)
+                .each(callback);
+        }
 
-        dataLocationFields
-          .filter(':not([data-location-field-observed])')
-          .attr('data-location-field-observed', true)
-          .each(callback);
-      }
 
-      var observer = new MutationObserver(function(mutations){
-      console.log(mutations);
-        _findAndEnableDataLocationFields();
-      });
+        var observer = new MutationObserver(_initLocationFields),
+            container = document.documentElement || document.body;
 
-      var container = document.documentElement || document.body;
-
-      $(container).ready(function(){
-        _findAndEnableDataLocationFields();
-      });
-
-      observer.observe(container, {attributes: true});
+        $(container).ready(_initLocationFields);
+        observer.observe(container, { childList: true, subtree: true });
     }
 
     dataLocationFieldObserver(function(){
